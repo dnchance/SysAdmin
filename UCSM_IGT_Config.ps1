@@ -4,15 +4,11 @@
 #Cobbled together by Damon Chance
 #None of this is my own work... I got it all from the Googles
 #
-#Version 2.0
+#Version 2.1
 #---------------------------------------------------------------------------------------------------------------------------------
 ################################################################################################################################
 ### VARS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ################################################################################################################################
-$Gateway = "10.21.120.1"
-$StartIP = "10.21.120.13"
-$EndIP = "10.21.120.99"
-
 #Fake iSCSI Initiator pool variables
 $DefaultiSCSIPoolDefGW  = "1.1.1.1"
 $DefaultiSCSIPrimDNS    = "1.1.1.2"
@@ -25,40 +21,40 @@ $DefaultiSCSIPoolSubnet = "255.255.255.0"
 ## Management Pool (This is systems management information)
 #Default Gateway IP Address for UCSM Management
 # Example: $DefGw = "9.9.9.1"
-$DefGw = "10.21.120.1"
+$DefGw = ""
 
 ## Primary DNS IP Address for UCSM Management
 # Example: $PriDNS = "9.9.9.10"
-$PriDNS = "10.128.3.1"
+$PriDNS = "1"
 
 ## Secondary DNS IP Address for UCSM Management
 # Example: $SecDNS = "9.9.9.11"
-$SecDNS = "10.129.3.1"
+$SecDNS = ""
 
 ## First IP Address in Blade Management Pool. (Must be on the same subnet as UCSM's management IP's)
 # Example: $MgmtIPstart = "9.9.9.21"
-$MgmtIPstart = "10.21.120.13"
+$MgmtIPstart = ""
 
 ## Last IP Address in Blade Management Pool. (Must be on the same subnet as UCSM's management IP's)
 # Example: $MgmtIPend = "9.9.9.254"
-$MgmtIPend = "10.21.120.99"
+$MgmtIPend = ""
 
 ## Management Info
 # Example: $UCSDesc = "UCS system in my lab"
 #Max: 256 Characters
-$UCSDesc      = "SCC UCSM"
+$UCSDesc      = "UCSM"
 # Example: $UCSOwner = "John Smith"
 #Max: 32 Characters
 $UCSOwner     = "SysAdmins"
 # Example: $UCSSite = "Datacenter 12 - anytown - Country"
 #Max: 32 Characters
-$UCSSite      = "SCC"
+$UCSSite      = ""
 # Example: $UCSDNSDomain = "domain.com"
 #Max: 256 Characters
-$UCSDNSDomain = "cnb-ss.com"
+$UCSDNSDomain = ""
 # Example: $SystemName = "MyUCS".  If left with just "" then the script will not change the default name assigned at startup
 #Max: 30 Characters
-$SystemName   = "sss-scc-ucs"
+$SystemName   = ""
 
 ## Timezone Management
 #Must be full description such as "America/Los_Angeles (Pacific Time)".  You may have to log into a UCS system to find out the proper format for your timezone.
@@ -68,7 +64,7 @@ $Timezone = "America/Chicago (Central Time)"
 ##NTP Servers
 # Example: $NTPName = @("4.4.4.4", "5.5.5.5")
 #Max: 64 Characters. IP Address or host.domain
-$NTPName = @("10.128.3.1", "10.129.3.1")
+$NTPName = @("", "")
 
 ## Important default variables and values
 #Default Scub Policy
@@ -191,7 +187,7 @@ $PlatinumQoSHostControl	        = "none"
 
 ## UCS System IP or Host Name (VIP address for UCS Management)
 # Example: $myucs = "9.9.9.9"
-$myucs = "10.21.120.10"
+$myucs = ""
 
 ## UCS Domain Number (Unique 16 bit Hex number to identify this UCS system as unique among other systems in the organization)
 #This element is used to create the UUID, MAC, WWPNs and WWNNs addresses
@@ -335,7 +331,7 @@ if ($AreYouSure -ine "Y")
 
 #Test for single FI
 $IsRedundantFI = Get-UcsFiModule | where {$_.Dn -eq "sys/switch-B/slot-1"}
-<#
+
 ######################################################################################################################################################
 ### Remove Defaults ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ######################################################################################################################################################
@@ -379,7 +375,7 @@ $mo = Get-UcsDns | Set-UcsDns -AdminState "enabled" -Descr "" -Domain "localdoma
 $mo_1 = Get-UcsDnsServer -Name "172.16.104.2" | Remove-UcsDnsServer -Force
 Complete-UcsTransaction
 
-#>
+
 ################################################################################################################################
 ### POLICIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ################################################################################################################################
@@ -517,7 +513,7 @@ $mo_1 = $mo | Add-UcsPortSecurityConfig -ModifyPresent -Descr "" -Forge "allow" 
 Complete-UcsTransaction
 
 #SERVER Set Memory Policy
-Get-UcsOrg -Level root | Get-UcsComputeMemoryConfigPolicy -Name "default" -LimitScope | Set-UcsComputeMemoryConfigPolicy -BlackListing "enabled" -Descr "" -PolicyOwner "local
+Get-UcsOrg -Level root | Get-UcsComputeMemoryConfigPolicy -Name "default" -LimitScope | Set-UcsComputeMemoryConfigPolicy -BlackListing "enabled" -Descr "" -PolicyOwner "local"
 
 ##Boot from Local HD -broken
 If ($BootFromHD -ieq "y")
@@ -884,24 +880,5 @@ Write-Host -ForegroundColor DarkGreen "Done with UCS base configuration Build"
 Write-Host -ForegroundColor DarkBlue "Disconnecting from UCS"
 Disconnect-Ucs
 
-##Notify user that script is complete
-Write-Host -ForegroundColor White -BackgroundColor DarkBlue "Script Completing..."
-Write-Host ""
-Write-Host -ForegroundColor DarkBlue "There are still many things to do to complete your UCS setup that this tool has not completed:"
-Write-Host -ForegroundColor DarkBlue "	1 - Admin Tab has many things that could be used.  Local users, LDAP, TACACS, RADIUS, Smart Call Home, etc."
-Write-Host -ForegroundColor DarkBlue "	2 - Verify that the default Host Firmware Packages (default) is using the version of UCSM that you expect/want"
-Write-Host -ForegroundColor DarkBlue "	4 - If using iSCSI boot, modify boot parameters to match the target address"
-Write-Host -ForegroundColor DarkBlue "	4 - UCS has MANY customizable options.  Please go through the system and make sure everything is setup and working as expected"
-Write-Host ""
-Write-Host -ForegroundColor DarkBlue "IF SOMETHING DID NOT BUILD AS EXPECTED IT COULD BE DUE TO AN INVALID FIELD SUCH AS:"
-Write-Host -ForegroundColor DarkBlue "	Invalid characters in the field"
-Write-Host -ForegroundColor DarkBlue "	Field Length too long"
-Write-Host -ForegroundColor DarkBlue "	Not providing all required parameters"
-Write-Host ""
-Write-Host -ForegroundColor DarkBlue "	I have tried my best to catch all these possible issues before proceeding so let me know what failed and I will correct this in my code"
-Write-Host ""
-Write-Host -ForegroundColor White -BackgroundColor DarkMagenta "*******************************************SPECIAL NOTES FOR THIS DEPLOYMENT*******************************************"
-Write-Host $SpecialNotes -ForegroundColor DarkMagenta
-Write-Host ""
 
 
