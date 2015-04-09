@@ -1,6 +1,6 @@
 ###############################################################################
 ## This script will rename the ethernet adapters to a more descriptive name  ##
-##  There is alos a block to change the IP addresses of anything that got    ## 
+##  There is also a block to change the IP addresses of anything that got    ## 
 ##  fat-fingered when initially set up.                                      ##
 ##                                                                           ##
 ##   Eventually this will be replaced with a DSC setup.                      ##
