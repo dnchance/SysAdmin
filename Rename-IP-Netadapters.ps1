@@ -35,4 +35,4 @@ Remove-NetIPAddress -IPAddress $badaddress1 -Confirm:$False
 Remove-NetIPAddress -IPAddress $badaddress2 -Confirm:$False
 Remove-NetIPAddress -IPAddress $badaddress3 -Confirm:$False
 Remove-NetIPAddress -IPAddress $badaddress4 -Confirm:$False
-echo "script complete"
+write-host "script complete"
