@@ -6,7 +6,7 @@
 ##   Eventually this will be replaced with a DSC setup.                      ##
 ###############################################################################
 
-[string]$lastoctet = 104
+[string]$lastoctet = 101
 $CAM1adp = "Ethernet 3"
 $CAM2adp = "Ethernet"
 $CAM3adp = "Ethernet 2"
